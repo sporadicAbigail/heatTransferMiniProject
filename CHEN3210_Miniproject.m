@@ -46,13 +46,14 @@ while 1
    % compare to heat loss outside, iterate tsurf until qpipe = qoutside
    % fxn(T) = qoutside, we compare the left to the right
    % q rad + q conv = q outside
-   qconv = h * A * (Ts - Ti);
-   qrad = 
-   qin = qconv + qrad;
+   %  qconv = h * A * (Ts - Ti);
+   %  qrad = 0;
+   %  qin = qconv + qrad;
+
    
-   if(abs(qin - qout) > 1)
+   %  if(abs(qin - qout) > 1)
        
-   end
+   %  end
    % if greater, reduce Tsurf, if less, increase Tsurf
    break
 end
