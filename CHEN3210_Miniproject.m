@@ -36,9 +36,42 @@ Then solve for h if correct then stop, if not iterate in a while loop.
 %       - while loop, calculate Tsurf, recalculate values
 %       - hold previous Tsurf until error is small?
 
-% variables that we solve for
-h = 1;
+% variable that we solve for
 
+exit = false;
+
+while(exit == false)
+    type = input("Free(1) or Forced(2) convection?");
+    % got to be a much prettier way to write this
+    % rip in matlab syntax
+    if(type == 1)
+        h = 10;
+        exit = true;
+    elseif(type == 2)
+        h = 100;
+        exit = true;
+    else
+        disp("Invalid input");
+    end
+end
+% h should take type as an input argument, and then h sends that type to
+% nusselt?
+
+% v v v Bread and Butter v v v
+qout = heatLossOutside(Kwall, A_WA, A_WB, Ti, To);
+qdiff = @(Ts) (sig .* emmisv .* (Ts.^4 - Ti.^4)) + (h .* SAp .* (Ts - Ti)) - qout;
+Tcalc1 = secantMethod(qdiff, 273, 373)
+Tcalc2 = bisectionMethod(qdiff, 273, 373)
+
+%{
+x = linspace(273,373,100);
+y = qdiff(x)
+hold on
+plot(x,y)
+axis([0 100 -10 100])
+xlabel('x'); ylabel('f(x)');
+%}
+%{
 while 1
    % get input temperature
    % calculate t-dependent values
@@ -46,14 +79,37 @@ while 1
    % compare to heat loss outside, iterate tsurf until qpipe = qoutside
    % fxn(T) = qoutside, we compare the left to the right
    % q rad + q conv = q outside
-   %  qconv = h * A * (Ts - Ti);
-   %  qrad = 0;
-   %  qin = qconv + qrad;
-
+   qconv = h * SAp * (Ts - Ti);
+   qrad = sig * emmisv * (Ts^4 - Ti^4);
+   qin = qconv + qrad;
+   qdiff = @(Ts) (sig * emmisv * (Ts^4 - Ti^4)) + (h * SAp * (Ts - Ti)) - qout;
    
-   %  if(abs(qin - qout) > 1)
-       
-   %  end
+   Tcalc = secantMethod(qdiff);
+   % and we return Tcalc
+   % this approach asks for a pretty big function of h,
+   % with a bunch of other functions nested inside
+   
+   % how to do this with secant method?
+   % we want qin - qout to be 0, and this is a function of T
+   % so we can plug in values of T until this error is less than 1
+   % and end up not even bothering with this while loop
+   
+   secantMethod
+   
+   % this if statement gets the temperature 
+   % to within a degree of the desired value
+   % ASK: How to best narrow down temperature ranges?
+   if(abs(qin - qout) > 1)
+       if(qin > qout) % q too high
+           Tsurf = Tsurf - 1;
+       else % q too low
+           Tsurf = Tsurf + 1;
+       end
+   else
+       disp('Calculated values:\nTsurf = %f\n q = %f\n', Tsurf, qout);
+       break;
+   end
    % if greater, reduce Tsurf, if less, increase Tsurf
    break
 end
+%}

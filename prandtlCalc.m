@@ -4,7 +4,7 @@ function Pr = prandtlCalc(temp, material)
     % Input temperature in Kelvin between 273 and 373
     % This is valid for both free and forced convection of the material
     % MATLAB arrays start at 1!! Not 0!
-    % Written by Abigail (for Github purposes)
+    % If you have questions: Ask Abigail
     if (material == 0)
         % this is for air
         % inputting values for the arrays
