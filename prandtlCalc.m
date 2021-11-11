@@ -4,7 +4,7 @@ function Pr = prandtlCalc(temp, material)
     % Input temperature in Kelvin between 273 and 373
     % This is valid for both free and forced convection of the material
     % MATLAB arrays start at 1!! Not 0!
-    % If you have questions: Ask Abigail
+    % Written by Abigail (for Github purposes)
     if (material == 0)
         % this is for air
         % inputting values for the arrays
@@ -25,8 +25,8 @@ function Pr = prandtlCalc(temp, material)
         % this is for water
 
         % these two arrays hold the values that will be interpolated against
-        prValues = [13.6, 6.96, 4.33, 3.00, 2.57, 1.72]; %water
-        tempValues = [273, 293, 331, 333, 353, 373]; %water
+        prValues = [13.6, 6.96, 4.33, 3.00, 2.57, 1.72, 0.94]; %water
+        tempValues = [273, 293, 331, 333, 353, 373, 473]; %water
         
         % now just a bunch of if statements to see which range will be
         % interpolating over
@@ -64,6 +64,11 @@ function Pr = prandtlCalc(temp, material)
             tempLow = tempValues(5);
             tempHigh = tempValues(6);
             %disp('five')
+        elseif (temp>=tempValues(6)) && (temp < tempValues(7))
+            prLow = prValues(6);
+            prHigh = prValues(7);
+            tempLow = tempValues(6);
+            tempHigh = tempValues(7);
         else
             % basically an error message
             disp('Out of range')

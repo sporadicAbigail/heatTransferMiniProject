@@ -14,11 +14,11 @@ kf7 = 3.3651e-2; %at T = 400K
 
 %First from secant method
 if (260 <= Tsurf) && (Tsurf < 280)
-    ka = lininterp(Tsurf_s,260,280,kf1,kf2);
+    ka = lininterp(Tsurf,260,280,kf1,kf2);
     elseif (280 <= Tsurf) && (Tsurf < 300)
-        ka = lininterp(Tsurf_s,280,300,kf2,kf3);
+        ka = lininterp(Tsurf,280,300,kf2,kf3);
         elseif (300 <= Tsurf) && (Tsurf < 320)
-            ka = lininterp(Tsurf_s,300,320,kf3,kf4);
+            ka = lininterp(Tsurf,300,320,kf3,kf4);
             elseif (320 <= Tsurf) && (Tsurf < 340)
                 ka = lininterp(Tsurf,320,340,kf4,kf5);
         elseif (340 <= Tsurf) && (Tsurf < 360)

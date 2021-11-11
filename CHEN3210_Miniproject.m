@@ -1,6 +1,9 @@
 %%
 %CHEN 3210 Mini-Project problem output code
 % Constants %
+% clear all;
+clc;
+
 Dipipe = 4/100;                 %inside pipe diameter in meters
 Lpipe = 5;                      %pipe length in meters
 ThickP = 0.25/100;              %pipe thickness in meters
@@ -13,8 +16,8 @@ To = -10 + 273.15;              %outside temp in K
 sig = 5.676e-8;                 %stefan-boltzman constant in W/((m)^2(K)^4) 
 SAp = pi()*Dopipe*Lpipe;        %Surface area of the pipe in m^2
 g = 9.81;                       %acceleration due to gravity in m/s^2
-A_WA = 15*8*(1/10.764);         %Area of wall A in m^2
-A_WB = 20*8*(1/10.764);         %Area of wall B in m^2
+A_WA = 15*8*(.0929);         %Area of wall A in m^2
+A_WB = 20*8*(.0929);         %Area of wall B in m^2
 %%
 % Calculate Re, Nu, Pr, Ra other constants
 % as well as Gr, kfluid, kROUGHCASTIRON, nu, and h
@@ -41,14 +44,12 @@ Then solve for h if correct then stop, if not iterate in a while loop.
 exit = false;
 
 while(exit == false)
-    type = input("Free(1) or Forced(2) convection?");
-    % got to be a much prettier way to write this
-    % rip in matlab syntax
-    if(type == 1)
-        h = 10;
+    type = input("Free(0) or Forced(1) convection?");
+    if(type == 0)
+        %h = 10;
         exit = true;
-    elseif(type == 2)
-        h = 100;
+    elseif(type == 1)
+        %h = 100;
         exit = true;
     else
         disp("Invalid input");
@@ -57,59 +58,31 @@ end
 % h should take type as an input argument, and then h sends that type to
 % nusselt?
 
+vel = 1;
+material = 0; % 0 for air, 1 for water
+%h = @(Ts) (kair(Ts) * nusseltCalc(reynoldCalc(1,Dopipe,nuair(Ts,Ti)),prandtlCalc(Ts,0),rayleighCalc(Grashof(Ts,Ts,Dopipe,Ti)),type) / Dopipe);
+% ((kair(Ts) / Dopipe) * nusseltCalc(reynoldCalc(1,Dopipe,nuair(Ts,Ti)),prandtlCalc(Ts,0) ,rayleighCalc(Grashof(Ts,Ts,Dopipe,Ti)) ,type ))
+
+%{
+R = reynoldCalc(1,Dopipe,nuair(Ts,Ti));
+P = prandtlCalc(Ts,0);
+RA = rayleighCalc(Grashof(Ts,Ts,Dopipe,Ti));
+T = type;
+%}
+
 % v v v Bread and Butter v v v
-qout = heatLossOutside(Kwall, A_WA, A_WB, Ti, To);
-qdiff = @(Ts) (sig .* emmisv .* (Ts.^4 - Ti.^4)) + (h .* SAp .* (Ts - Ti)) - qout;
+qout = heatLossOutside(Kwall, A_WA, A_WB, Ti, To, ThickW)
+qdiff = @(Ts) (SAp * sig .* emmisv .* (Ts.^4 - Ti.^4)) + (((kair(Ts) / Dopipe) * nusseltCalc(reynoldCalc(1,Dopipe,nuair(Ts)),prandtlCalc(Ts,0) ,rayleighCalc(Grashof(Ts,Dopipe,Ti), prandtlCalc(Ts,0)) ,type )) .* SAp .* (Ts - Ti)) - qout;
 Tcalc1 = secantMethod(qdiff, 273, 373)
 Tcalc2 = bisectionMethod(qdiff, 273, 373)
 
-%{
-x = linspace(273,373,100);
-y = qdiff(x)
-hold on
-plot(x,y)
-axis([0 100 -10 100])
-xlabel('x'); ylabel('f(x)');
-%}
-%{
-while 1
-   % get input temperature
-   % calculate t-dependent values
-   % get temperature method by plugging energy balance into secant method
-   % compare to heat loss outside, iterate tsurf until qpipe = qoutside
-   % fxn(T) = qoutside, we compare the left to the right
-   % q rad + q conv = q outside
-   qconv = h * SAp * (Ts - Ti);
-   qrad = sig * emmisv * (Ts^4 - Ti^4);
-   qin = qconv + qrad;
-   qdiff = @(Ts) (sig * emmisv * (Ts^4 - Ti^4)) + (h * SAp * (Ts - Ti)) - qout;
-   
-   Tcalc = secantMethod(qdiff);
-   % and we return Tcalc
-   % this approach asks for a pretty big function of h,
-   % with a bunch of other functions nested inside
-   
-   % how to do this with secant method?
-   % we want qin - qout to be 0, and this is a function of T
-   % so we can plug in values of T until this error is less than 1
-   % and end up not even bothering with this while loop
-   
-   secantMethod
-   
-   % this if statement gets the temperature 
-   % to within a degree of the desired value
-   % ASK: How to best narrow down temperature ranges?
-   if(abs(qin - qout) > 1)
-       if(qin > qout) % q too high
-           Tsurf = Tsurf - 1;
-       else % q too low
-           Tsurf = Tsurf + 1;
-       end
-   else
-       disp('Calculated values:\nTsurf = %f\n q = %f\n', Tsurf, qout);
-       break;
-   end
-   % if greater, reduce Tsurf, if less, increase Tsurf
-   break
-end
-%}
+% Question D
+
+qradD = (sig .* emmisv .* (Tcalc1.^4 - Ti.^4))
+qconvD = (((kair(Tcalc1) / Dopipe) * nusseltCalc(reynoldCalc(1,Dopipe,nuair(Tcalc1)),prandtlCalc(Tcalc1,0) ,rayleighCalc(Grashof(Tcalc1,Dopipe,Ti), prandtlCalc(Tcalc1,0)) ,type )) .* SAp .* (Tcalc1 - Ti))
+fractionrad = (qradD) / (qradD + qconvD)
+fractionconv = 1- fractionrad
+
+% Question E
+
+deltaT = qout / 1 / lininterp(Tcalc1,293,313,4182,4175)

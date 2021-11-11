@@ -12,14 +12,14 @@ nu5 = 1.9553e-5; %at T = 340K
 nu6 = 2.1596e-5; %at T = 360K
 nu7 = 2.5909e-5; %at T = 400K
 
-if (260 <= Tsurf) && (Tsurf_s < 280)
+if (260 <= Tsurf) && (Tsurf < 280)
     nua = lininterp(Tsurf,260,280,nu1,nu2);
     elseif (280 <= Tsurf) && (Tsurf < 300)
         nua = lininterp(Tsurf,280,300,nu2,nu3);
         elseif (300 <= Tsurf) && (Tsurf < 320)
             nua = lininterp(Tsurf,300,320,nu3,nu4);
             elseif (320 <= Tsurf) && (Tsurf < 340)
-                nua = lininterp(Tsurf_s,320,340,nu4,nu5);
+                nua = lininterp(Tsurf,320,340,nu4,nu5);
         elseif (340 <= Tsurf) && (Tsurf < 360)
             nua = lininterp(Tsurf,340,360,nu5,nu6);
     elseif (360 <= Tsurf) && (Tsurf <= 400) 
